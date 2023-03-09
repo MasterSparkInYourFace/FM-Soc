@@ -1,0 +1,242 @@
+@use "sass:map";
+
+@use "macro";
+
+$colors: (
+    dark-magenta: hsl(300, 43%, 22%),
+    soft-pink: hsl(333, 80%, 67%),
+    paragraph: hsl(303, 10%, 53%),
+    bg-rating: hsl(300, 24%, 96%)
+);
+
+@function col($c) {
+    @return map.get($colors, $c);
+}
+
+@font-face {
+    @include macro.deffont("LeagueSpartan", "wght", 400 700);
+}
+
+body {
+    font-family: "LeagueSpartan";
+    font-size: 15px;
+    margin: 0;
+}
+
+#container {
+    box-sizing: border-box;
+    position: relative;
+    min-height: 100vh;
+    min-width: 100vw;
+}
+
+.bg {
+    position: absolute;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    background-color: col(dark-magenta);
+    mask-repeat: no-repeat;
+}
+
+// I literally sat here debugging this dumb mask for well over
+// three hours, because firefox refused to render any element
+// with it applied, even though identically defined masks were
+// working on the MDN site. it turns out firefox will treat local
+// files as cross-origin and, SPECIFICALLY WITH RESPECT TO MASKS,
+// silently fail to load the mask and completely skip rendering
+// the element. go to about:config and set
+// security.fileuri.strict_origin_policy to false to fix it.
+
+// I now remember why I no longer do web stuff for fun.
+#bg-top {
+    top: 0;
+    left: 0;
+    @include macro.resp(
+        $mask-image:
+            url(./images/bg-pattern-top-desktop.svg)
+            url(./images/bg-pattern-top-mobile.svg)
+    );
+}
+
+#bg-bottom {
+    bottom: 0;
+    right: 0;
+    mask-position: right bottom;
+    @include macro.resp(
+        $mask-image:
+            url(./images/bg-pattern-bottom-desktop.svg)
+            url(./images/bg-pattern-bottom-mobile.svg)
+    );
+}
+
+#content {
+    position: relative;
+    box-sizing: border-box;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    @include macro.resp(
+        $height: 100%,
+        $padding: (6% 10% 5% 10%) (20% 5% 20% 5%),
+        $display: grid flex,
+        $transform: translate(-2.5%, -6%),
+        $gap: (10% 5%) Skip,
+        // if you're using parentheses to encapsulate a list,
+        // you need a second element next to the list or sass will
+        // interpret the list as separate entities. dumb behavior
+        $grid-template-rows: (50% 50%) Skip,
+        $grid-template-columns: (50% 50%) Skip,
+        $text-align: Skip center,
+        $flex-flow: Skip (column nowrap),
+        $align-items: Skip center
+    );
+}
+
+#overview {
+    color: col(paragraph);
+    width: 80%;
+    @include macro.resp(
+        $min-height: 30vh,
+        $width: 80% 100%,
+        $font-size: 20px 18px,
+        $padding-bottom: Skip 40px
+    );
+}
+
+#overview>header {
+    color: col(dark-magenta);
+    font-weight: 700;
+    padding-bottom: 30px;
+    @include macro.resp(
+        $font-size: 60px 40px,
+        $line-height: 50px 30px
+    );
+}
+
+#ratings {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: space-around;
+    align-items: end;
+    @include macro.resp(
+        $padding-bottom: 10px 30px,
+        $padding-top: 10px
+    );
+}
+
+@media only screen and (min-width: 376px) {
+    @each $i in 1, 2, 3 {
+        .rating:nth-child(#{$i}) {
+            margin-right: calc(30% - $i * 10%);
+        }
+    }
+}
+
+.rating {
+    box-sizing: border-box;
+    width: 75%;
+    background-color: col(bg-rating);
+    border-radius: 8px;
+    color: col(dark-magenta);
+    font-weight: 700;
+    @include macro.resp(
+        $padding: (20px 40px 20px 40px) (10px 20px 10px 20px),
+        $display: grid block,
+        $grid-template-rows: 100%,
+        $grid-template-columns: (120px auto) Skip,
+        $column-gap: 40px,
+        $align-items: center,
+        $width: 75% 100%,
+        $margin-bottom: Skip 20px,
+    );
+}
+
+.stars {
+    @include macro.resp(
+        $width: 100% 120px,
+        $margin: Skip auto,
+        $padding-bottom: Skip 10px
+    );
+}
+
+#reviews {
+    grid-column-start: 1;
+    grid-column-end: 3;
+    @include macro.resp(
+        $display: flex block,
+        $flex-wrap: nowrap,
+        $flex-flow: Skip (column nowrap),
+        $justify-content: space-between
+    );
+}
+
+@media only screen and (min-width: 376px) {
+    @each $i in 1, 2, 3 {
+        .review:nth-child(#{$i}) {
+            margin-top: calc($i * 1% - 1%);
+        }
+    }
+}
+
+.review {
+    background-color: col(dark-magenta);
+    border-radius: 8px;
+    box-sizing: border-box;
+    padding: 30px;
+    font-size: 18px;
+    @include macro.resp(
+        $width: 32% 100%,
+        $max-height: 90%,
+        $text-align: Skip left,
+        $margin-bottom: Skip 20px
+    );
+}
+
+.details {
+    padding-bottom: 10px;
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+.name {
+    margin-left: 20px;
+    color: white;
+    font-weight: 700;
+}
+
+.status {
+    margin-top: 5px;
+    color: col(soft-pink);
+    font-weight: 400;
+}
+
+.details>img {
+    border-radius: 50%;
+    height: 50px;
+    width: 50px;
+}
+
+.review-text {
+    color: white;
+}
+
+.review-text::before {
+    content: "\201C";
+}
+
+.review-text::after {
+    content: "\201D";
+}
+
+.attribution {
+    position: relative;
+    top: 10px;
+    z-index: 1;
+    font-size: 11px;
+    text-align: center;
+}
+
+.attribution a {
+    color: hsl(228, 45%, 44%);
+}
